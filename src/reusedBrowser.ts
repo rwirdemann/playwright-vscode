@@ -324,7 +324,19 @@ export class ReusedBrowser implements vscodeTypes.Disposable {
     this._resetNoWait();
   }
 
+  private startRecording(): Promise<void> {
+    const request: RequestInfo = new Request('http://localhost:3000/tests', {
+      method: 'POST',
+    })
+  
+    return fetch(request)
+      .then(res => {
+        console.log("got response:", res)
+      })
+  }
+
   private async _createFileForNewTest(model: TestModel) {
+    this.startRecording()
     const project = model.enabledProjects()[0];
     if (!project)
       return;
@@ -340,13 +352,40 @@ export class ReusedBrowser implements vscodeTypes.Disposable {
 
     await fs.promises.writeFile(file, `import { test, expect } from '@playwright/test';
 
+// Start rt-record to record database interaction
+    
 test('test', async ({ page }) => {
+  setupDatabaseExpections()
   // Recording...
-});`);
+  validateDatabaseInteractions()
+});
+
+function setupDatabaseExpections(): Promise<void> {
+  const request: RequestInfo = new Request('http://localhost:3000/tests/reset', {
+    method: 'POST',
+  })
+
+  return fetch(request)
+    .then(res => {
+      console.log("got response:", res)
+    })
+}
+
+function validateDatabaseInteractions(): Promise<void> {
+  const request: RequestInfo = new Request('http://localhost:3000/tests/validate', {
+    method: 'POST',
+  })
+
+  return fetch(request)
+    .then(res => {
+      console.log("got response:", res)
+    })
+}`
+);
 
     const document = await this._vscode.workspace.openTextDocument(file);
     const editor = await this._vscode.window.showTextDocument(document);
-    editor.selection = new this._vscode.Selection(new this._vscode.Position(3, 2), new this._vscode.Position(3, 2 + '// Recording...'.length));
+    editor.selection = new this._vscode.Selection(new this._vscode.Position(6, 2), new this._vscode.Position(6, 2 + '// Recording...'.length));
     return editor;
   }
 
