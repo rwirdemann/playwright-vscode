@@ -39,6 +39,7 @@ export class SettingsModel extends DisposableBase {
   readonly onChange: vscodeTypes.Event<void>;
   private _onChange: vscodeTypes.EventEmitter<void>;
   showBrowser: Setting<boolean>;
+  databaseDragonBaseURL: Setting<string>;
   showTrace: Setting<boolean>;
   useTestServer: Setting<boolean>;
   allowWatchingFiles: Setting<boolean>;
@@ -51,6 +52,7 @@ export class SettingsModel extends DisposableBase {
     this.onChange = this._onChange.event;
 
     this.showBrowser = this._createSetting('reuseBrowser');
+    this.databaseDragonBaseURL = this._createSetting('databaseDragonBaseURL')
     this.showTrace = this._createSetting('showTrace');
     this.useTestServer = this._createSetting('useTestServer');
     this.allowWatchingFiles = this._createSetting('allowWatchingFiles');

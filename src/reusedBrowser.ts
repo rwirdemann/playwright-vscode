@@ -45,7 +45,7 @@ export class ReusedBrowser implements vscodeTypes.Disposable {
   private _editOperations = Promise.resolve();
   private _pausedOnPagePause = false;
   private _settingsModel: SettingsModel;
-  private _testId = ""
+  private _testId: string | null | undefined
 
   constructor(vscode: vscodeTypes.VSCode, settingsModel: SettingsModel, envProvider: () => NodeJS.ProcessEnv) {
     this._vscode = vscode;
@@ -327,6 +327,7 @@ export class ReusedBrowser implements vscodeTypes.Disposable {
   }
 
   private async startRecording(): Promise<void> {
+    console.log("Databse Dragon Base URL: " + this._settingsModel.databaseDragonBaseURL.get())
     await fetch('http://localhost:3000/tests', {
       method: 'POST',
       headers: {
@@ -334,13 +335,18 @@ export class ReusedBrowser implements vscodeTypes.Disposable {
       },
     })
     .then((res) => {
-      this._testId = res.headers.get("location") ? ""
+      console.log("HTTP Status: " + res.status)
+      this._testId = res.headers.get("location") 
       console.log("Test ID: " + this._testId)
     })
   }
 
+  private async createDecoraredFile(model: TestModel) {
+
+  }
+
   private async _createFileForNewTest(model: TestModel) {
-    this.startRecording()
+    await this.startRecording()    
     const project = model.enabledProjects()[0];
     if (!project)
       return;
@@ -365,7 +371,7 @@ test('test', async ({ page }) => {
 });
 
 function setupDatabaseExpections(): Promise<void> {
-  const request: RequestInfo = new Request('http://localhost:3000/tests/reset', {
+  const request: RequestInfo = new Request('http://localhost:3000/tests/${this._testId}/runs', {
     method: 'POST',
   })
 
@@ -376,8 +382,8 @@ function setupDatabaseExpections(): Promise<void> {
 }
 
 function validateDatabaseInteractions(): Promise<void> {
-  const request: RequestInfo = new Request('http://localhost:3000/tests/validate', {
-    method: 'POST',
+  const request: RequestInfo = new Request('http://localhost:3000/tests/${this._testId}/runs', {
+    method: 'GET',
   })
 
   return fetch(request)

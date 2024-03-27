@@ -80,6 +80,11 @@
           "default": {},
           "description": "%configuration.playwright.env%"
         },
+        "playwright.databaseDragonBaseURL": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "%configuration.playwright.databaseDragon%"
+        },
         "playwright.reuseBrowser": {
           "type": "boolean",
           "default": false,
