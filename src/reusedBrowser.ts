@@ -23,6 +23,7 @@ import fs from 'fs';
 import { installBrowsers } from './installer';
 import { SettingsModel } from './settingsModel';
 import { BackendServer, BackendClient } from './backend';
+import fetch from 'node-fetch'
 
 export class ReusedBrowser implements vscodeTypes.Disposable {
   private _vscode: vscodeTypes.VSCode;
@@ -44,6 +45,7 @@ export class ReusedBrowser implements vscodeTypes.Disposable {
   private _editOperations = Promise.resolve();
   private _pausedOnPagePause = false;
   private _settingsModel: SettingsModel;
+  private _testId = ""
 
   constructor(vscode: vscodeTypes.VSCode, settingsModel: SettingsModel, envProvider: () => NodeJS.ProcessEnv) {
     this._vscode = vscode;
@@ -324,15 +326,17 @@ export class ReusedBrowser implements vscodeTypes.Disposable {
     this._resetNoWait();
   }
 
-  private startRecording(): Promise<void> {
-    const request: RequestInfo = new Request('http://localhost:3000/tests', {
+  private async startRecording(): Promise<void> {
+    await fetch('http://localhost:3000/tests', {
       method: 'POST',
+      headers: {
+        'content-type': 'application/json;charset=UTF-8',
+      },
     })
-  
-    return fetch(request)
-      .then(res => {
-        console.log("got response:", res)
-      })
+    .then((res) => {
+      this._testId = res.headers.get("location") ? ""
+      console.log("Test ID: " + this._testId)
+    })
   }
 
   private async _createFileForNewTest(model: TestModel) {
