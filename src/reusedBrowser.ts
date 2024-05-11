@@ -323,7 +323,24 @@ export class ReusedBrowser implements vscodeTypes.Disposable {
       new Promise<void>(f => token.onCancellationRequested(f)),
       new Promise<void>(f => this._cancelRecording = f),
     ]);
+
+    const datbaseDragonBaseURL = this._settingsModel.databaseDragonBaseURL.get()
+    await this.stopRecording(datbaseDragonBaseURL)
     this._resetNoWait();
+  }
+
+  private async stopRecording(datbaseDragonBaseURL: string): Promise<void> {
+    const url = `${datbaseDragonBaseURL}/tests/create-job/recordings`
+    await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'content-type': 'application/json;charset=UTF-8',
+      },
+    }).then((res) => {
+      console.log("HTTP Status: " + res.status)
+    }).catch(error => {
+      console.log("ERROR: " + error);
+    });
   }
 
   private async startRecording(datbaseDragonBaseURL: string): Promise<void> {
