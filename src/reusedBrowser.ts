@@ -219,7 +219,7 @@ export class ReusedBrowser implements vscodeTypes.Disposable {
     selectorExplorerBox.prompt = this._vscode.l10n.t('Accept to copy locator into clipboard');
     selectorExplorerBox.ignoreFocusOut = true;
     selectorExplorerBox.onDidChangeValue(selector => {
-      this._backend?.highlight({ selector }).catch(() => {});
+      this._backend?.highlight({ selector }).catch(() => { });
     });
     selectorExplorerBox.onDidHide(() => this._resetNoWait());
     selectorExplorerBox.onDidAccept(() => {
@@ -249,7 +249,7 @@ export class ReusedBrowser implements vscodeTypes.Disposable {
       return;
     if (!this.canRecord()) {
       this._vscode.window.showWarningMessage(
-          this._vscode.l10n.t('Can\'t record while running tests')
+        this._vscode.l10n.t('Can\'t record while running tests')
       );
       return;
     }
@@ -261,12 +261,12 @@ export class ReusedBrowser implements vscodeTypes.Disposable {
   }
 
   highlight(selector: string) {
-    this._backend?.highlight({ selector }).catch(() => {});
+    this._backend?.highlight({ selector }).catch(() => { });
     this._onHighlightRequestedForTestEvent.fire(selector);
   }
 
   hideHighlight() {
-    this._backend?.hideHighlight().catch(() => {});
+    this._backend?.hideHighlight().catch(() => { });
     this._onHighlightRequestedForTestEvent.fire('');
   }
 
@@ -276,14 +276,14 @@ export class ReusedBrowser implements vscodeTypes.Disposable {
   ): boolean {
     if (config.version < 1.25) {
       this._vscode.window.showWarningMessage(
-          this._vscode.l10n.t('Playwright v1.25+ is required for {0} to work, v{1} found', message, config.version)
+        this._vscode.l10n.t('Playwright v1.25+ is required for {0} to work, v{1} found', message, config.version)
       );
       return false;
     }
 
     if (this._vscode.env.uiKind === this._vscode.UIKind.Web && !process.env.DISPLAY) {
       this._vscode.window.showWarningMessage(
-          this._vscode.l10n.t('Show browser mode does not work in remote vscode')
+        this._vscode.l10n.t('Show browser mode does not work in remote vscode')
       );
       return false;
     }
@@ -326,27 +326,23 @@ export class ReusedBrowser implements vscodeTypes.Disposable {
     this._resetNoWait();
   }
 
-  private async startRecording(): Promise<void> {
-    console.log("Databse Dragon Base URL: " + this._settingsModel.databaseDragonBaseURL.get())
-    await fetch('http://localhost:3000/tests', {
+  private async startRecording(datbaseDragonBaseURL: string): Promise<void> {
+    const url = `${datbaseDragonBaseURL}/tests/create-job/recordings`
+    await fetch(url, {
       method: 'POST',
       headers: {
         'content-type': 'application/json;charset=UTF-8',
       },
-    })
-    .then((res) => {
+    }).then((res) => {
       console.log("HTTP Status: " + res.status)
-      this._testId = res.headers.get("location") 
-      console.log("Test ID: " + this._testId)
-    })
-  }
-
-  private async createDecoraredFile(model: TestModel) {
-
+    }).catch(error => {
+      console.log("ERROR: " + error);
+    });
   }
 
   private async _createFileForNewTest(model: TestModel) {
-    await this.startRecording()    
+    const datbaseDragonBaseURL = this._settingsModel.databaseDragonBaseURL.get()
+    await this.startRecording(datbaseDragonBaseURL)
     const project = model.enabledProjects()[0];
     if (!project)
       return;
@@ -391,7 +387,7 @@ function validateDatabaseInteractions(): Promise<void> {
       console.log("got response:", res)
     })
 }`
-);
+    );
 
     const document = await this._vscode.workspace.openTextDocument(file);
     const editor = await this._vscode.window.showTextDocument(document);
@@ -424,7 +420,7 @@ function validateDatabaseInteractions(): Promise<void> {
   closeAllBrowsers() {
     if (this._isRunningTests) {
       this._vscode.window.showWarningMessage(
-          this._vscode.l10n.t('Can\'t close browsers while running tests')
+        this._vscode.l10n.t('Can\'t close browsers while running tests')
       );
       return;
     }
@@ -475,7 +471,7 @@ export class Backend extends BackendClient {
   }
 
   override requestGracefulTermination() {
-    this.send('kill').catch(() => {});
+    this.send('kill').catch(() => { });
   }
 
   async resetForReuse() {
@@ -483,7 +479,7 @@ export class Backend extends BackendClient {
   }
 
   resetRecorderModeNoWait() {
-    this.resetRecorderMode().catch(() => {});
+    this.resetRecorderMode().catch(() => { });
   }
 
   async resetRecorderMode() {
@@ -507,7 +503,7 @@ export class Backend extends BackendClient {
   }
 
   resumeNoWait() {
-    this.send('resume').catch(() => {});
+    this.send('resume').catch(() => { });
   }
 }
 
